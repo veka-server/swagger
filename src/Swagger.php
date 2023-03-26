@@ -60,6 +60,12 @@ class Swagger implements MiddlewareInterface
             return $openapi->toJson();
         }
 
+        if($page == 'index.html'){
+            $file_path = __DIR__.'./template/index.html';
+            $ct = 'text/html';
+            return file_get_contents($file_path);
+        }
+
         $public_directory = dirname(__DIR__,3).DIRECTORY_SEPARATOR.'swagger-api'.DIRECTORY_SEPARATOR.'swagger-ui'.DIRECTORY_SEPARATOR.'dist'.DIRECTORY_SEPARATOR;
         $file_path = $public_directory.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, explode('/', $page));
         $file_path = realpath($file_path);
