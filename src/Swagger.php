@@ -17,17 +17,17 @@ class Swagger implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) :ResponseInterface
     {
 
-       $rooter = new \VekaServer\Rooter\Rooter();
+        $rooter = new \VekaServer\Rooter\Rooter();
 
-       // route de demo
-       $rooter->get('/swagger/([a-zA-Z0-9_\-+ \.]+)',function($page){
+        // route de demo
+        $rooter->get('/swagger/([a-zA-Z0-9_\-+ \.]+)',function($page){
 
             if (empty($page)) {
                 $page = 'index.html';
             }
-                      
+
             $data = $this->getSwaggerFile($page,$contentType);
-           
+
             $response = new Response();
             $response = $response->withStatus(200);
             $stream = $response->getBody();
@@ -37,21 +37,19 @@ class Swagger implements MiddlewareInterface
             return $response->withHeader('Content-Type',$contentType);
         }) ;
 
-        $rooter->set404( function() use($handler, $request){            
-              return $handler->handle($request);
-            }
-         );
-        
+        $rooter->set404( function() use($handler, $request){
+            return $handler->handle($request);
+        }
+        );
+
         return $rooter->process($request, $handler);
     }
 
     protected function getSwaggerFile ($page, &$ct) :string
     {
-
-        $public_directory = realpath(__DIR__.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'..'.DIRECTORY_SEPARATOR.'vendor'.DIRECTORY_SEPARATOR.'swagger-api'.DIRECTORY_SEPARATOR.'swagger-ui/dist/');
+        $public_directory = dirname(__DIR__,3).DIRECTORY_SEPARATOR.'swagger-api'.DIRECTORY_SEPARATOR.'swagger-ui'.DIRECTORY_SEPARATOR.'dist'.DIRECTORY_SEPARATOR;
         $file_path = $public_directory.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, explode('/', $page));
         $file_path = realpath($file_path);
-
         /** verifie que le fichier est toujours dans le dossier public */
         if(strpos( $file_path , $public_directory ) !== 0){
             return '';
@@ -77,7 +75,7 @@ class Swagger implements MiddlewareInterface
             case 'php9':
             case 'php10':
                 return '';
-            
+
             case 'html':
                 $ct = 'text/html';
                 break ;
