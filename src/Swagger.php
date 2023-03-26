@@ -55,9 +55,7 @@ class Swagger implements MiddlewareInterface
     {
 
         if($page == 'data.json'){
-            $src_directory = dirname(__DIR__,4).'\src';
             $openapi = (new \OpenApi\Generator())->generate(\OpenApi\Util::finder($this->directory, $this->exclude, $this->patern));
-            $openapi = (new \OpenApi\Generator())->generate(\OpenApi\Util::finder($src_directory, ['vendor'], '*.php'));
             $ct = 'application/json';
             return $openapi->toJson();
         }
