@@ -10,8 +10,14 @@ use \Psr\Http\Server\RequestHandlerInterface;
 
 class Swagger implements MiddlewareInterface
 {
+    protected string $directory;
+    protected array $exclude;
+    protected string $patern;
 
-    public function __construct() {
+    public function __construct($directory, $exclude = [], $patern = '*.php') {
+        $this->directory = $directory;
+        $this->exclude = $exclude;
+        $this->patern = $patern;
     }
 
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler) :ResponseInterface
@@ -47,6 +53,15 @@ class Swagger implements MiddlewareInterface
 
     protected function getSwaggerFile ($page, &$ct) :string
     {
+
+        if($page == 'data.json'){
+            $src_directory = dirname(__DIR__,4).'\src';
+            $openapi = (new \OpenApi\Generator())->generate(\OpenApi\Util::finder($this->directory, $this->exclude, $this->patern));
+            $openapi = (new \OpenApi\Generator())->generate(\OpenApi\Util::finder($src_directory, ['vendor'], '*.php'));
+            $ct = 'application/json';
+            return $openapi->toJson();
+        }
+
         $public_directory = dirname(__DIR__,3).DIRECTORY_SEPARATOR.'swagger-api'.DIRECTORY_SEPARATOR.'swagger-ui'.DIRECTORY_SEPARATOR.'dist'.DIRECTORY_SEPARATOR;
         $file_path = $public_directory.DIRECTORY_SEPARATOR.implode(DIRECTORY_SEPARATOR, explode('/', $page));
         $file_path = realpath($file_path);
@@ -59,7 +74,6 @@ class Swagger implements MiddlewareInterface
             return '';
 
         $path_parts = pathinfo($file_path);
-
         switch($path_parts["extension"]){
 
             /** exclure les fichiers php */
@@ -86,6 +100,10 @@ class Swagger implements MiddlewareInterface
 
             case 'js':
                 $ct = 'text/js';
+                break;
+
+            case 'json':
+                $ct = 'application/json';
                 break;
 
             default:
